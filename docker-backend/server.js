@@ -14,6 +14,8 @@ const PROJECTS_DIR = process.env.PROJECTS_DIR || path.join(__dirname, '..', 'pro
 // Host-side path used by Docker CLI for compose file references (may differ in containerized deployments)
 const PROJECTS_HOST_DIR = process.env.PROJECTS_HOST_DIR || PROJECTS_DIR;
 const VPS_HOST = process.env.VPS_HOST || 'localhost';
+// Base URL for demo service links shown in the iframe (must be HTTPS in production to avoid mixed content)
+const VPS_URL_PREFIX = process.env.VPS_URL_PREFIX || `http://${VPS_HOST}`;
 // Host to probe when checking if a port is open (use host.docker.internal when backend is containerized)
 const HEALTH_HOST = process.env.HEALTH_HOST || 'localhost';
 const SECRET = process.env.DOCKER_BACKEND_SECRET;
@@ -81,11 +83,18 @@ async function scanProjects() {
   return projects;
 }
 
-function buildOverrideYaml(services, portMap) {
+function buildOverrideYaml(services, portMap, urlMap) {
   let yaml = 'services:\n';
   for (const svc of services) {
     const ext = portMap[svc.service];
     yaml += `  ${svc.service}:\n    ports:\n      - "${ext}:${svc.internal_port}"\n`;
+    if (svc.env_overrides && svc.env_overrides.length > 0) {
+      const svcUrl = urlMap[svc.service];
+      yaml += `    environment:\n`;
+      for (const entry of svc.env_overrides) {
+        yaml += `      - "${entry.replace(/\{\{URL\}\}/g, svcUrl)}"\n`;
+      }
+    }
   }
   return yaml;
 }
@@ -193,12 +202,17 @@ app.post('/launch/:projectId', async (req, res) => {
     return res.status(503).json({ error: err.message });
   }
 
+  const urlMap = {};
+  for (const svc of config.services) {
+    urlMap[svc.service] = `${VPS_URL_PREFIX}/demo/${portMap[svc.service]}/`;
+  }
+
   const overrideFile = `/tmp/portfolio-override-${sessionId}.yml`;
-  await fs.writeFile(overrideFile, buildOverrideYaml(config.services, portMap));
+  await fs.writeFile(overrideFile, buildOverrideYaml(config.services, portMap, urlMap));
 
   const services = config.services.map((svc) => ({
     name: svc.name,
-    url: `http://${VPS_HOST}:${portMap[svc.service]}`,
+    url: urlMap[svc.service],
     credentials: svc.credentials || null,
   }));
 

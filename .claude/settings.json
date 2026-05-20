@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd /home/van-pc_ivan/Portfolio && npm run lint 2>&1 | tail -15"
+            "command": "cd /home/ubuntu/Portfolio && npm run lint 2>&1 | tail -15"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'docker compose up'; then [ -f /home/van-pc_ivan/Portfolio/.env ] || echo '[WARN] .env manquant — copier .env.example en .env avant de lancer Docker Compose'; fi"
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'docker compose up'; then [ -f /home/ubuntu/Portfolio/.env ] || echo '[WARN] .env manquant — copier .env.example en .env avant de lancer Docker Compose'; fi"
           }
         ]
       }
@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd /home/van-pc_ivan/Portfolio && echo '=== Git status ===' && git status --short && echo '=== Fichiers non commités ===' && git diff --stat HEAD 2>/dev/null | tail -5"
+            "command": "cd /home/ubuntu/Portfolio && echo '=== Git status ===' && git status --short && echo '=== Fichiers non commités ===' && git diff --stat HEAD 2>/dev/null | tail -5"
           }
         ]
       }

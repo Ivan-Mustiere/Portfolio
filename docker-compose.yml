@@ -21,6 +21,7 @@ services:
     environment:
       - DOCKER_BACKEND_SECRET=${DOCKER_BACKEND_SECRET}
       - VPS_HOST=${VPS_HOST:-localhost}
+      - VPS_URL_PREFIX=${VPS_URL_PREFIX:-http://localhost}
       # Path used by the Docker CLI when constructing volume mounts for demo containers
       # Must be the real host-side path to the projets/ folder
       - PROJECTS_HOST_DIR=${PROJECTS_HOST_DIR}

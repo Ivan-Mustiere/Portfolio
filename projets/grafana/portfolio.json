@@ -8,7 +8,11 @@
       "name": "Grafana",
       "service": "grafana",
       "internal_port": 3000,
-      "credentials": { "user": "admin", "password": "admin" }
+      "credentials": { "user": "admin", "password": "admin" },
+      "env_overrides": [
+        "GF_SERVER_ROOT_URL={{URL}}",
+        "GF_SERVER_SERVE_FROM_SUB_PATH=true"
+      ]
     }
   ]
 }
