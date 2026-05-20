@@ -1,0 +1,14 @@
+{
+  "name": "Grafana Monitoring",
+  "description": "Dashboard de monitoring avec Grafana. Visualisez des métriques et créez des panels interactifs.",
+  "tags": ["Grafana", "Monitoring", "Dashboards"],
+  "estimatedStartSeconds": 20,
+  "services": [
+    {
+      "name": "Grafana",
+      "service": "grafana",
+      "internal_port": 3000,
+      "credentials": { "user": "admin", "password": "admin" }
+    }
+  ]
+}

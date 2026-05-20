@@ -5,4 +5,30 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3002:3000"
+    environment:
+      - DOCKER_BACKEND_URL=http://docker-backend:4000
+      - DOCKER_BACKEND_SECRET=${DOCKER_BACKEND_SECRET}
+    depends_on:
+      - docker-backend
+    restart: unless-stopped
+
+  docker-backend:
+    build:
+      context: ./docker-backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - DOCKER_BACKEND_SECRET=${DOCKER_BACKEND_SECRET}
+      - VPS_HOST=${VPS_HOST:-localhost}
+      # Path used by the Docker CLI when constructing volume mounts for demo containers
+      # Must be the real host-side path to the projets/ folder
+      - PROJECTS_HOST_DIR=${PROJECTS_HOST_DIR}
+      - PROJECTS_DIR=/app/projets
+      - HEALTH_HOST=host.docker.internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${PROJECTS_HOST_DIR:-./projets}:/app/projets:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped

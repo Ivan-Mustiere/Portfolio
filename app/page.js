@@ -7,7 +7,7 @@ export default function Home() {
           <span className="font-semibold tracking-tight">Ivan Mustière</span>
           <nav className="flex gap-6 text-sm text-zinc-400">
             <a href="#about" className="hover:text-zinc-100 transition-colors">À propos</a>
-            <a href="#projects" className="hover:text-zinc-100 transition-colors">Projets</a>
+            <a href="/projets" className="hover:text-zinc-100 transition-colors">Projets</a>
             <a href="#contact" className="hover:text-zinc-100 transition-colors">Contact</a>
           </nav>
         </div>
