@@ -1,8 +1,28 @@
 {
   "name": "Grafana Monitoring",
   "description": "Dashboard de monitoring avec Grafana. Visualisez des métriques et créez des panels interactifs.",
+  "longDescription": "Grafana est la référence open-source pour la visualisation de données et le monitoring. Cette démo lance une instance complète de Grafana directement dans ton navigateur — sans rien installer. Tu peux explorer l'interface, créer des dashboards, configurer des panels et découvrir les fonctionnalités de l'outil utilisé par des milliers d'équipes data et DevOps dans le monde.",
+  "highlights": [
+    {
+      "title": "Dashboards interactifs",
+      "description": "Crée et personnalise des dashboards avec des panels de différents types : graphiques, jauges, tables, heatmaps."
+    },
+    {
+      "title": "Sources de données multiples",
+      "description": "Grafana se connecte nativement à Prometheus, InfluxDB, PostgreSQL, Elasticsearch, CloudWatch et plus de 150 sources."
+    },
+    {
+      "title": "Alerting intégré",
+      "description": "Définissez des règles d'alerte sur vos métriques et notifiez vos équipes via Slack, email, PagerDuty ou webhook."
+    },
+    {
+      "title": "Exploration des données",
+      "description": "Le mode Explore permet d'interroger vos données en temps réel sans créer de dashboard, idéal pour le débogage."
+    }
+  ],
   "tags": ["Grafana", "Monitoring", "Dashboards"],
   "estimatedStartSeconds": 20,
+  "images": [],
   "services": [
     {
       "name": "Grafana",

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Nav from "@/app/components/Nav";
 
 export default function ProjetsPage() {
   const [projects, setProjects] = useState([]);
@@ -15,18 +16,7 @@ export default function ProjetsPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans">
-      <header className="fixed top-0 w-full border-b border-zinc-800 bg-zinc-950/80 backdrop-blur z-10">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="font-semibold tracking-tight hover:text-zinc-300 transition-colors">
-            Ivan Mustière
-          </a>
-          <nav className="flex gap-6 text-sm text-zinc-400">
-            <a href="/#about" className="hover:text-zinc-100 transition-colors">À propos</a>
-            <a href="/projets" className="text-zinc-100">Projets</a>
-            <a href="/#contact" className="hover:text-zinc-100 transition-colors">Contact</a>
-          </nav>
-        </div>
-      </header>
+      <Nav activePage="projets" />
 
       <main className="max-w-4xl mx-auto px-6 pt-32 pb-24">
         <div className="mb-12">
