@@ -86,7 +86,7 @@ export default function Home() {
           <nav className="flex gap-6 text-sm text-zinc-400 items-center">
             <a href="#experience" className="hover:text-zinc-100 transition-colors">Expérience</a>
             <a href="#skills" className="hover:text-zinc-100 transition-colors">Compétences</a>
-            <a href="#projects" className="hover:text-zinc-100 transition-colors">Projets</a>
+            <a href="/projets" className="hover:text-zinc-100 transition-colors">Projets</a>
             <a href="#contact" className="hover:text-zinc-100 transition-colors">Contact</a>
             <a href="https://github.com/Ivan-Mustiere" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-100 transition-colors" aria-label="GitHub">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
