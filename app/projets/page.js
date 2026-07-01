@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Nav from "@/app/components/Nav";
+import { pastProjects } from "@/lib/data";
+
+const CATEGORIES = ["École", "Perso", "Pro"];
 
 export default function ProjetsPage() {
   const [projects, setProjects] = useState([]);
@@ -19,6 +22,8 @@ export default function ProjetsPage() {
       <Nav activePage="projets" />
 
       <main className="max-w-4xl mx-auto px-6 pt-32 pb-24">
+
+        {/* Démos interactives */}
         <div className="mb-12">
           <h1 className="text-3xl font-bold tracking-tight mb-3">Projets interactifs</h1>
           <p className="text-zinc-400 max-w-xl leading-relaxed">
@@ -65,6 +70,53 @@ export default function ProjetsPage() {
             ))}
           </div>
         )}
+
+        {/* Projets passés */}
+        <div className="mt-20 mb-12 border-t border-zinc-800 pt-16">
+          <h2 className="text-2xl font-bold tracking-tight mb-3">Projets passés</h2>
+          <p className="text-zinc-400 max-w-xl leading-relaxed text-sm">
+            Projets réalisés en formation, en autonomie ou en contexte professionnel — sans démo interactive.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-14">
+          {CATEGORIES.map((cat) => {
+            const items = pastProjects.filter((p) => p.category === cat);
+            if (items.length === 0) return null;
+            return (
+              <div key={cat}>
+                <h3 className="text-xs font-semibold text-blue-400 uppercase tracking-widest mb-6">{cat}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {items.map((p) => (
+                    <div
+                      key={p.id}
+                      className="p-5 border border-zinc-800 rounded-xl flex flex-col gap-3"
+                    >
+                      <h4 className="font-medium text-sm">{p.name}</h4>
+                      <p className="text-sm text-zinc-500 leading-relaxed">{p.description}</p>
+                      {p.highlights && (
+                        <ul className="flex flex-col gap-1.5">
+                          {p.highlights.map((h) => (
+                            <li key={h} className="flex items-start gap-2 text-xs text-zinc-600">
+                              <span className="w-1 h-1 rounded-full bg-zinc-700 flex-shrink-0 mt-1.5" />
+                              {h}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="flex flex-wrap gap-1.5 mt-auto pt-1">
+                        {p.stack.map((s) => (
+                          <span key={s} className="px-2 py-0.5 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded text-xs">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
       </main>
 
       <footer className="border-t border-zinc-800">

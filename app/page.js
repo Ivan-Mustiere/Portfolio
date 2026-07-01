@@ -1,87 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
-
-const experiences = [
-  {
-    title: "Data Analyst",
-    type: "Alternance",
-    company: "Groupe Henner",
-    location: "Neuilly-sur-Seine, Île-de-France",
-    period: "Sept. 2023 – Aujourd'hui",
-    tasks: [
-      "Conception et maintenance de pipelines ETL & ELT avec Talend pour l'intégration des flux de données médicales",
-      "Analyse big data sur des volumes importants de documents de santé avec Apache Spark et PostgreSQL, incluant l'annulation automatique de documents via CNN",
-      "Modélisation et alimentation d'un data warehouse Snowflake pour le reporting métier",
-      "Création de dashboards analytiques et visualisations sous Qlik Sense",
-      "Orchestration des workflows de données via Apache Airflow",
-      "Administration de serveurs cloud et gestion des environnements de traitement de données",
-    ],
-    stack: ["Snowflake", "Talend", "Qlik", "Airflow", "Spark", "PostgreSQL", "Docker"],
-  },
-  {
-    title: "Administrateur Systèmes / DevOps",
-    type: "Alternance",
-    company: "Kosmos",
-    location: "Nantes, Pays de la Loire",
-    period: "Août 2021 – Sept. 2023",
-    tasks: [
-      "Gestion du ticketing et résolution d'incidents via Jira",
-      "Configuration de postes de travail et gestion du parc informatique",
-      "Achat de matériel et gestion des baies de brassage",
-      "Automatisation des tâches d'exploitation via scripts PowerShell et Bash",
-      "Déploiement et suivi des applications en production",
-      "2e année : création et gestion de conteneurs sur des environnements Kubernetes",
-    ],
-    stack: ["Jira", "PowerShell", "Bash", "Kubernetes", "Docker", "Linux", "Windows"],
-  },
-];
-
-const formations = [
-  {
-    degree: "Master Informatique",
-    speciality: "Spécialisation Data Engineer",
-    school: "Paris Ynov Campus",
-    location: "Nanterre, Île-de-France",
-    period: "2024 – 2026",
-  },
-  {
-    degree: "Bachelor Informatique",
-    speciality: "Spécialisation Data",
-    school: "Paris Ynov Campus",
-    location: "Nanterre, Île-de-France",
-    period: "2023 – 2024",
-  },
-  {
-    degree: "BTS Systèmes Numériques",
-    speciality: "Programmation Informatique",
-    school: "St Félix-La Salle",
-    location: "Nantes, Pays de la Loire",
-    period: "2021 – 2023",
-  },
-  {
-    degree: "Baccalauréat Professionnel",
-    speciality: "Informatique",
-    school: "St Félix-La Salle",
-    location: "Nantes, Pays de la Loire",
-    period: "2018 – 2021",
-  },
-];
-
-const skills = [
-  {
-    category: "Data & MLOps",
-    items: ["ETL & pipelines (Airflow, Talend)", "MLOps (CI/CD, MLflow)", "Big Data (Spark, Kafka, Snowflake)", "Modèles ML (pandas, scikit-learn)", "Deep Learning (TensorFlow, PyTorch)"],
-  },
-  {
-    category: "Infrastructure",
-    items: ["Conteneurs (Docker, Kubernetes)", "Cloud (AWS, Azure)", "Administration Windows & Linux", "Monitoring & alerting (Grafana, PRTG)", "Automatisation de workflows (n8n)"],
-  },
-  {
-    category: "Développement",
-    items: ["Traitement de données (NumPy, Matplotlib)", "Développement applis web & mobile", "Développement de daemon", "Création de capteur embarqué", "Gestion d'équipements réseaux"],
-  },
-];
+import ProjectsGrid from "@/app/components/ProjectsGrid";
+import { experiences, formations, skills } from "@/lib/data";
 
 export default function Home() {
   return (
@@ -95,7 +16,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-12">
             <div className="flex md:hidden justify-center">
               <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-zinc-700">
-                <Image src="/images/photo.png" alt="Ivan Mustière" width={112} height={112} className="object-cover w-full h-full" priority />
+                <Image src="/images/photo.webp" alt="Ivan Mustière" width={112} height={112} className="object-cover w-full h-full" priority />
               </div>
             </div>
             <div className="flex-1">
@@ -127,7 +48,7 @@ export default function Home() {
             </div>
             <div className="hidden md:flex flex-shrink-0">
               <div className="w-40 h-40 rounded-full overflow-hidden border-2 border-zinc-700">
-                <Image src="/images/photo.png" alt="Ivan Mustière" width={160} height={160} className="object-cover w-full h-full" priority />
+                <Image src="/images/photo.webp" alt="Ivan Mustière" width={160} height={160} className="object-cover w-full h-full" priority />
               </div>
             </div>
           </div>
@@ -264,61 +185,32 @@ export default function Home() {
 
         {/* Projets interactifs */}
         <section className="py-14 md:py-20 border-t border-zinc-800">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-            <div>
-              <h2 className="text-xl md:text-2xl font-semibold mb-2">Projets interactifs</h2>
-              <p className="text-sm text-zinc-500 max-w-md">
-                Lance n'importe quel projet directement dans le navigateur — un conteneur Docker démarre, sans rien installer.
-              </p>
-            </div>
-            <Link
-              href="/projets"
-              className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-100 transition-colors whitespace-nowrap"
-            >
-              Voir tous les projets
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-              </svg>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              {
-                name: "Grafana Monitoring",
-                description: "Dashboard de monitoring avec Grafana. Visualisez des métriques et créez des panels interactifs.",
-                tags: ["Grafana", "Monitoring", "Dashboards"],
-                time: "~20s",
-                href: "/projets/grafana",
-              },
-              {
-                name: "Apache Airflow",
-                description: "Orchestration de workflows de données. Créez et supervisez des DAGs en temps réel.",
-                tags: ["Airflow", "Orchestration", "ETL"],
-                time: "~3 min",
-                href: "/projets/airflow",
-              },
-            ].map((p) => (
-              <a
-                key={p.name}
-                href={p.href}
-                className="group p-6 border border-zinc-800 rounded-xl hover:border-zinc-600 transition-colors flex flex-col gap-4"
+          <div className="rounded-2xl border border-blue-900/50 bg-blue-950/10 px-6 py-8 md:px-10 md:py-10">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-8">
+              <div>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-xs text-blue-400 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                    Live
+                  </span>
+                </div>
+                <h2 className="text-xl md:text-2xl font-semibold mb-2">Projets interactifs</h2>
+                <p className="text-sm text-zinc-400 max-w-md leading-relaxed">
+                  Lance n'importe quel projet directement dans le navigateur — un conteneur Docker démarre en quelques secondes, sans rien installer.
+                </p>
+              </div>
+              <Link
+                href="/projets"
+                className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors whitespace-nowrap flex-shrink-0"
               >
-                <div>
-                  <h3 className="font-medium mb-2 group-hover:text-white transition-colors">{p.name}</h3>
-                  <p className="text-sm text-zinc-500 leading-relaxed">{p.description}</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {p.tags.map((tag) => (
-                    <span key={tag} className="px-2 py-0.5 bg-zinc-800 text-zinc-400 rounded text-xs">{tag}</span>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between mt-auto pt-2">
-                  <span className="text-xs text-zinc-500">{p.time} pour démarrer</span>
-                  <span className="text-xs text-zinc-500 group-hover:text-blue-400 transition-colors">Lancer →</span>
-                </div>
-              </a>
-            ))}
+                Voir tous les projets
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+            </div>
+
+            <ProjectsGrid />
           </div>
         </section>
 
@@ -328,6 +220,7 @@ export default function Home() {
           <p className="text-zinc-500 mb-8 max-w-md text-sm">
             Disponible pour échanger sur des opportunités en CDI ou freelance.
           </p>
+
           <div className="flex flex-wrap gap-3">
             <a
               href="mailto:ivanmustiere.pro@gmail.com"
