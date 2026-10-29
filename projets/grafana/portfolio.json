@@ -1,7 +1,62 @@
 {
   "name": "Grafana Monitoring",
   "description": "Dashboard de monitoring avec Grafana. Visualisez des métriques et créez des panels interactifs.",
-  "longDescription": "Grafana est la référence open-source pour la visualisation de données et le monitoring. Cette démo lance une instance complète de Grafana directement dans ton navigateur — sans rien installer. Tu peux explorer l'interface, créer des dashboards, configurer des panels et découvrir les fonctionnalités de l'outil utilisé par des milliers d'équipes data et DevOps dans le monde.",
+  "longDescription": "Une instance Grafana 12 complète, lancée rien que pour toi dans un conteneur isolé. Tout est provisionné as code au démarrage : une source de données, un dossier et un dashboard « Plateforme data » qui simule la supervision d’une stack data (pipelines, latence, ressources du cluster, erreurs par service). Tu as les droits admin : modifie les panels, crée tes propres dashboards ou des règles d’alerte, rien ne survit à la fin de la session.",
+  "contents": {
+    "title": "Le dashboard « Plateforme data »",
+    "items": [
+      {
+        "label": "Pipelines réussis (24 h)",
+        "tag": "Stat"
+      },
+      {
+        "label": "Latence p95",
+        "tag": "Stat"
+      },
+      {
+        "label": "CPU cluster",
+        "tag": "Jauge"
+      },
+      {
+        "label": "Mémoire",
+        "tag": "Jauge"
+      },
+      {
+        "label": "Lignes ingérées / min",
+        "tag": "Série temporelle"
+      },
+      {
+        "label": "Durée des tâches",
+        "tag": "Barres"
+      },
+      {
+        "label": "Erreurs par service",
+        "tag": "Série temporelle"
+      }
+    ]
+  },
+  "tryIt": [
+    {
+      "title": "Connecte-toi",
+      "description": "Identifiants admin / admin. Grafana propose ensuite de changer le mot de passe : tu peux passer cette étape."
+    },
+    {
+      "title": "Parcours le dashboard",
+      "description": "Il s’ouvre en page d’accueil. Change la plage de temps en haut à droite ou survole les courbes : les données sont générées en continu."
+    },
+    {
+      "title": "Modifie un panel",
+      "description": "Survole un panel et appuie sur « e » pour l’éditer, puis change sa visualisation (courbe, barres, jauge) ou ses seuils de couleur."
+    },
+    {
+      "title": "Interroge les données dans Explore",
+      "description": "Menu → Explore, source TestData : choisis un scénario (Random Walk, CSV…) et compare plusieurs requêtes côte à côte."
+    },
+    {
+      "title": "Crée une alerte",
+      "description": "Menu → Alerting → Alert rules : pose un seuil sur une requête TestData et regarde la règle passer en état « Firing »."
+    }
+  ],
   "highlights": [
     {
       "title": "Dashboards interactifs",
@@ -20,7 +75,41 @@
       "description": "Le mode Explore permet d'interroger vos données en temps réel sans créer de dashboard, idéal pour le débogage."
     }
   ],
-  "tags": ["Grafana", "Monitoring", "Dashboards"],
+  "build": [
+    {
+      "label": "Image",
+      "value": "grafana/grafana:12.0.0, version figée"
+    },
+    {
+      "label": "Provisioning",
+      "value": "Source de données, dossier et dashboard chargés depuis provisioning/, monté en lecture seule"
+    },
+    {
+      "label": "Données",
+      "value": "TestData, source synthétique intégrée : la démo n’a pas accès à Internet"
+    },
+    {
+      "label": "Sous-chemin",
+      "value": "GF_SERVER_ROOT_URL et GF_SERVER_SERVE_FROM_SUB_PATH pour être servie sous /demo/<port>/"
+    },
+    {
+      "label": "Iframe",
+      "value": "GF_SECURITY_ALLOW_EMBEDDING pour s’afficher dans cette page"
+    },
+    {
+      "label": "Santé",
+      "value": "Démo déclarée prête quand /api/health répond"
+    },
+    {
+      "label": "Ressources",
+      "value": "256 Mo de RAM, 50 % d’un cœur, détruite après 15 min"
+    }
+  ],
+  "tags": [
+    "Grafana",
+    "Monitoring",
+    "Dashboards"
+  ],
   "estimatedStartSeconds": 20,
   "images": [],
   "services": [
@@ -28,11 +117,123 @@
       "name": "Grafana",
       "service": "grafana",
       "internal_port": 3000,
-      "credentials": { "user": "admin", "password": "admin" },
+      "credentials": {
+        "user": "admin",
+        "password": "admin"
+      },
       "env_overrides": [
         "GF_SERVER_ROOT_URL={{URL}}",
         "GF_SERVER_SERVE_FROM_SUB_PATH=true"
-      ]
+      ],
+      "health_path": "{{PATH}}/api/health"
     }
-  ]
+  ],
+  "en": {
+    "name": "Grafana Monitoring",
+    "description": "Monitoring dashboard with Grafana. Explore metrics and build interactive panels.",
+    "longDescription": "A complete Grafana 12 instance, started just for you in an isolated container. Everything is provisioned as code at startup: a data source, a folder and a “Data platform” dashboard simulating the monitoring of a data stack (pipelines, latency, cluster resources, errors per service). You are admin: edit panels, build your own dashboards or alert rules, nothing survives the end of the session.",
+    "contents": {
+      "title": "The “Data platform” dashboard",
+      "items": [
+        {
+          "label": "Successful pipelines (24 h)",
+          "tag": "Stat"
+        },
+        {
+          "label": "p95 latency",
+          "tag": "Stat"
+        },
+        {
+          "label": "Cluster CPU",
+          "tag": "Gauge"
+        },
+        {
+          "label": "Memory",
+          "tag": "Gauge"
+        },
+        {
+          "label": "Rows ingested / min",
+          "tag": "Time series"
+        },
+        {
+          "label": "Task duration",
+          "tag": "Bar gauge"
+        },
+        {
+          "label": "Errors per service",
+          "tag": "Time series"
+        }
+      ]
+    },
+    "tryIt": [
+      {
+        "title": "Sign in",
+        "description": "Credentials admin / admin. Grafana then offers to change the password: you can skip that step."
+      },
+      {
+        "title": "Browse the dashboard",
+        "description": "It opens as the home page. Change the time range at the top right or hover the charts: data is generated continuously."
+      },
+      {
+        "title": "Edit a panel",
+        "description": "Hover a panel and press “e” to edit it, then change its visualisation (line, bars, gauge) or its colour thresholds."
+      },
+      {
+        "title": "Query data in Explore",
+        "description": "Menu → Explore, TestData source: pick a scenario (Random Walk, CSV…) and compare several queries side by side."
+      },
+      {
+        "title": "Create an alert",
+        "description": "Menu → Alerting → Alert rules: set a threshold on a TestData query and watch the rule switch to “Firing”."
+      }
+    ],
+    "highlights": [
+      {
+        "title": "Interactive dashboards",
+        "description": "Build and customise dashboards with many panel types: charts, gauges, tables, heatmaps."
+      },
+      {
+        "title": "Many data sources",
+        "description": "Grafana connects natively to Prometheus, InfluxDB, PostgreSQL, Elasticsearch, CloudWatch and 150+ other sources."
+      },
+      {
+        "title": "Built-in alerting",
+        "description": "Define alert rules on your metrics and notify your teams via Slack, email, PagerDuty or webhook."
+      },
+      {
+        "title": "Data exploration",
+        "description": "Explore mode lets you query your data in real time without building a dashboard, ideal for debugging."
+      }
+    ],
+    "build": [
+      {
+        "label": "Image",
+        "value": "grafana/grafana:12.0.0, pinned version"
+      },
+      {
+        "label": "Provisioning",
+        "value": "Data source, folder and dashboard loaded from provisioning/, mounted read-only"
+      },
+      {
+        "label": "Data",
+        "value": "TestData, a built-in synthetic source: the demo has no internet access"
+      },
+      {
+        "label": "Sub-path",
+        "value": "GF_SERVER_ROOT_URL and GF_SERVER_SERVE_FROM_SUB_PATH to be served under /demo/<port>/"
+      },
+      {
+        "label": "Iframe",
+        "value": "GF_SECURITY_ALLOW_EMBEDDING so it can be shown in this page"
+      },
+      {
+        "label": "Health",
+        "value": "Demo marked ready once /api/health responds"
+      },
+      {
+        "label": "Resources",
+        "value": "256 MB of RAM, half a CPU core, destroyed after 15 min"
+      }
+    ]
+  }
 }

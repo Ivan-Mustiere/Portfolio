@@ -46,7 +46,7 @@ cmd_start() {
   echo -e "${GREEN}▶  Démarrage des services...${RESET}"
   docker compose up -d
   echo -e "${GREEN}✓  Frontend : http://localhost:3002${RESET}"
-  echo -e "${GREEN}✓  Backend  : http://localhost:4000${RESET}"
+  echo -e "${GREEN}✓  Backend  : interne (non exposé)${RESET}"
 }
 
 cmd_stop() {
@@ -60,7 +60,7 @@ cmd_rebuild() {
   echo -e "${YELLOW}⟳  Rebuild et redémarrage...${RESET}"
   docker compose up -d --build
   echo -e "${GREEN}✓  Frontend : http://localhost:3002${RESET}"
-  echo -e "${GREEN}✓  Backend  : http://localhost:4000${RESET}"
+  echo -e "${GREEN}✓  Backend  : interne (non exposé)${RESET}"
 }
 
 cmd_logs() {

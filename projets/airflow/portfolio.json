@@ -1,14 +1,29 @@
 {
   "name": "Apache Airflow",
   "description": "Orchestration de pipelines de données. DAGs d'exemple pour découvrir l'interface et créer des workflows.",
-  "tags": ["Airflow", "Python", "Orchestration", "DAGs"],
-  "estimatedStartSeconds": 210,
+  "tags": [
+    "Airflow",
+    "Python",
+    "Orchestration",
+    "DAGs"
+  ],
+  "estimatedStartSeconds": 90,
   "services": [
     {
       "name": "Airflow",
       "service": "airflow",
       "internal_port": 8080,
-      "credentials": { "user": "admin", "password": "admin" }
+      "credentials": {
+        "user": "admin",
+        "password": "admin"
+      },
+      "env_overrides": [
+        "AIRFLOW__WEBSERVER__BASE_URL={{BASE}}"
+      ],
+      "health_path": "{{PATH}}/health"
     }
-  ]
+  ],
+  "en": {
+    "description": "Data pipeline orchestration. Example DAGs to discover the interface and build workflows."
+  }
 }

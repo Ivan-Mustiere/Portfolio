@@ -1,10 +1,17 @@
 services:
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.0.0
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_AUTH_ANONYMOUS_ENABLED=false
       - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/data-platform.json
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_NEWS_NEWS_FEED_ENABLED=false
+    # Resolved by the Docker daemon on the host: docker-backend mounts projets/ at its host path (see docker-compose.yml)
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning:ro
     mem_limit: 256m
     cpus: "0.5"

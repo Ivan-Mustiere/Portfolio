@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:22-slim
 
 RUN apt-get update && apt-get install -y \
     ca-certificates \
@@ -12,9 +12,12 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY package.json .
-RUN npm install --production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY server.js .
 
+# Stays root: access to the mounted docker.sock is root-equivalent anyway, and a
+# non-root user would need the host's docker GID baked in. Isolation comes from
+# not publishing this container's port (see docker-compose.yml).
 EXPOSE 4000
 CMD ["node", "server.js"]

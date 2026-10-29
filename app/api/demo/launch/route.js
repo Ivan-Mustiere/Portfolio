@@ -7,10 +7,15 @@ export async function POST(request) {
   const { projectId } = await request.json();
   if (!projectId) return NextResponse.json({ error: 'projectId requis' }, { status: 400 });
 
+  // nginx sets X-Real-IP; X-Forwarded-For's first hop is client-controlled, so it's only a fallback
+  const clientIp = request.headers.get('x-real-ip')
+    || request.headers.get('x-forwarded-for')?.split(',').pop().trim()
+    || 'unknown';
+
   try {
     const res = await fetch(`${BACKEND}/launch/${encodeURIComponent(projectId)}`, {
       method: 'POST',
-      headers: { 'x-backend-secret': SECRET, 'content-type': 'application/json' },
+      headers: { 'x-backend-secret': SECRET, 'x-client-ip': clientIp, 'content-type': 'application/json' },
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });

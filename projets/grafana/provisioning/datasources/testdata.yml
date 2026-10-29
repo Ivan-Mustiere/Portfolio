@@ -1,0 +1,8 @@
+# Built-in synthetic data source: the demo has no internet, so dashboards can't query real services
+apiVersion: 1
+datasources:
+  - name: TestData
+    uid: testdata
+    type: grafana-testdata-datasource
+    isDefault: true
+    editable: true
