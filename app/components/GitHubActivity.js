@@ -70,8 +70,7 @@ export default async function GitHubActivity({ lang = "fr" }) {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 mt-4 text-xs text-zinc-500">
-          <p>{t.stats(data.activeDays, data.bestStreak)}</p>
+        <div className="flex justify-end mt-4 text-xs text-zinc-500">
           <div className="flex items-center gap-1" aria-hidden="true">
             <span className="mr-1">{t.less}</span>
             {LEVEL_CLASS.map((c) => (
