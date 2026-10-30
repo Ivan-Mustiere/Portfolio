@@ -15,10 +15,11 @@ function cityPeriod(items, now) {
 // The route draws itself when revealed (.journey-* in globals.css).
 export default function JourneyMap({ lang = "fr", experiences, formations }) {
   const t = getDict(lang).journey;
+  // Jobs first in each city, then schools, each by start year
   const items = [
     ...experiences.map((e) => ({ title: e.title, org: e.company, period: e.period, location: e.location, kind: "job", ongoing: e.end === null })),
     ...formations.map((f) => ({ title: f.degree, org: f.school, period: f.period, location: f.location, kind: "school" })),
-  ].sort((a, b) => startYear(a.period) - startYear(b.period));
+  ].sort((a, b) => (a.kind === b.kind ? startYear(a.period) - startYear(b.period) : a.kind === "job" ? -1 : 1));
 
   const stops = [
     { key: "nantes", label: t.nantes, items: items.filter((i) => i.location.includes("Nantes")) },

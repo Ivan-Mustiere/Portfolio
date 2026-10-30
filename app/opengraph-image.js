@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Ivan Mustière — Data Engineer, MLOps & Admin Systèmes";
+export const alt = "Ivan Mustière — Data Engineer, bagage infra & DevOps";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -36,7 +36,7 @@ export default function OpengraphImage() {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -2 }}>Ivan Mustière</div>
-          <div style={{ fontSize: 40, color: "#a1a1aa" }}>Data Engineer · MLOps · Admin Systèmes</div>
+          <div style={{ fontSize: 40, color: "#a1a1aa" }}>Data Engineer · Infra & DevOps</div>
         </div>
         <div style={{ display: "flex", gap: 12 }}>
             {TAGS.map((tag) => (

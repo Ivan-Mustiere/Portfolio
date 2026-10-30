@@ -13,14 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Ivan Mustière — Data Engineer, MLOps & Admin Systèmes",
+  title: "Ivan Mustière — Data Engineer, bagage infra & DevOps",
   description:
-    "Portfolio d'Ivan Mustière, Data Engineer, MLOps et administrateur systèmes. Pipelines de données, orchestration Airflow, Linux & Windows, Kubernetes, monitoring Grafana — avec démos Docker interactives.",
+    "Portfolio d'Ivan Mustière, Data Engineer avec un solide bagage infra et DevOps. Pipelines ETL/ELT, Snowflake, orchestration Airflow, Docker & Kubernetes — avec démos Docker interactives hébergées sur mon propre VPS.",
   metadataBase: new URL("https://ivan-mustiere.com"),
   openGraph: {
-    title: "Ivan Mustière — Data Engineer, MLOps & Admin Systèmes",
+    title: "Ivan Mustière — Data Engineer, bagage infra & DevOps",
     description:
-      "Portfolio d'Ivan Mustière, Data Engineer, MLOps et administrateur systèmes. Pipelines de données, orchestration Airflow, Linux & Windows, Kubernetes, monitoring Grafana — avec démos Docker interactives.",
+      "Portfolio d'Ivan Mustière, Data Engineer avec un solide bagage infra et DevOps. Pipelines ETL/ELT, Snowflake, orchestration Airflow, Docker & Kubernetes — avec démos Docker interactives hébergées sur mon propre VPS.",
     url: "https://ivan-mustiere.com",
     siteName: "Ivan Mustière",
     locale: "fr_FR",
@@ -28,7 +28,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ivan Mustière — Data Engineer, MLOps & Admin Systèmes",
+    title: "Ivan Mustière — Data Engineer, bagage infra & DevOps",
     description: "Portfolio avec démos Docker interactives — Grafana, Airflow et plus.",
   },
   alternates: { canonical: "/", languages: { fr: "/", en: "/en" } },
