@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd /home/yifor/Portfolio && PATH=/home/yifor/.local/node20/bin:$PATH npm run build 2>&1 | tail -20"
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && PATH=\"$HOME/.local/node20/bin:$PATH\" npm run build 2>&1 | tail -20"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'docker compose up'; then [ -f /home/yifor/Portfolio/.env ] || echo '[WARN] .env manquant — copier .env.example en .env avant de lancer Docker Compose'; fi"
+            "command": "if grep -q 'docker compose up'; then [ -f \"$CLAUDE_PROJECT_DIR/.env\" ] || echo '[WARN] .env manquant — copier .env.example en .env avant de lancer Docker Compose'; fi"
           }
         ]
       }
@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd /home/yifor/Portfolio && echo '=== Git status ===' && git status --short && echo '=== Fichiers non commités ===' && git diff --stat HEAD 2>/dev/null | tail -5"
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && echo '=== Git status ===' && git status --short && echo '=== Fichiers non commités ===' && git diff --stat HEAD 2>/dev/null | tail -5"
           }
         ]
       }

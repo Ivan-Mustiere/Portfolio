@@ -3,11 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_PLAUSIBLE_DOMAIN=${NEXT_PUBLIC_PLAUSIBLE_DOMAIN:-}
+    # Only nginx (on the host) talks to the frontend
     ports:
-      - "3002:3000"
+      - "127.0.0.1:3002:3000"
     environment:
       - DOCKER_BACKEND_URL=http://docker-backend:4000
-      - DOCKER_BACKEND_SECRET=${DOCKER_BACKEND_SECRET}
+      - DOCKER_BACKEND_SECRET=${DOCKER_BACKEND_SECRET:?DOCKER_BACKEND_SECRET doit être défini dans .env}
     depends_on:
       - docker-backend
     restart: unless-stopped
@@ -16,20 +19,21 @@ services:
     build:
       context: ./docker-backend
       dockerfile: Dockerfile
-    ports:
-      - "4000:4000"
+    # No published port: only the frontend reaches it, over the compose network.
+    # It holds docker.sock (root on the host), so it must never be exposed.
     environment:
-      - DOCKER_BACKEND_SECRET=${DOCKER_BACKEND_SECRET}
+      - DOCKER_BACKEND_SECRET=${DOCKER_BACKEND_SECRET:?DOCKER_BACKEND_SECRET doit être défini dans .env}
       - VPS_HOST=${VPS_HOST:-localhost}
       - VPS_URL_PREFIX=${VPS_URL_PREFIX:-http://localhost}
-      # Path used by the Docker CLI when constructing volume mounts for demo containers
-      # Must be the real host-side path to the projets/ folder
-      - PROJECTS_HOST_DIR=${PROJECTS_HOST_DIR}
-      - PROJECTS_DIR=/app/projets
-      - HEALTH_HOST=host.docker.internal
+      # Same path inside as on the host: relative bind mounts in projets/*/docker-compose.yml
+      # are resolved by the CLI here but mounted by the host daemon, so both must agree
+      - PROJECTS_DIR=${PROJECTS_HOST_DIR:?PROJECTS_HOST_DIR doit être défini dans .env}
+      # Demo ports are published on the docker0 gateway only (not 0.0.0.0): reachable from
+      # the host's nginx and from this container, never directly from the internet
+      - DEMO_BIND_IP=${DEMO_BIND_IP:-172.17.0.1}
+      - HEALTH_HOST=${DEMO_BIND_IP:-172.17.0.1}
+      - MAX_SESSIONS=${MAX_SESSIONS:-3}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${PROJECTS_HOST_DIR:-./projets}:/app/projets:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - ${PROJECTS_HOST_DIR}:${PROJECTS_HOST_DIR}:ro
     restart: unless-stopped

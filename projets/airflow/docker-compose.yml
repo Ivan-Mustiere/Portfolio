@@ -11,5 +11,7 @@ services:
       - _AIRFLOW_WWW_USER_USERNAME=admin
       - _AIRFLOW_WWW_USER_PASSWORD=admin
       - AIRFLOW__WEBSERVER__X_FRAME_ENABLED=True
+      # 1 gunicorn worker instead of 4: enough for a demo, saves ~600 MB
+      - AIRFLOW__WEBSERVER__WORKERS=1
     mem_limit: 1536m
     cpus: "0.5"

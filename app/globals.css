@@ -1,26 +1,325 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Theme ─────────────────────────────────────────────────────────────────
+   The UI is written dark-first with zinc/blue utilities. Light mode mirrors
+   each palette (50↔950, 100↔900…), so every existing class flips at once.
+   data-theme is set before paint by the inline script in layout.js. */
+:root {
+  color-scheme: dark;
+  /* Default zinc-500 is 4.1:1 on zinc-950; this one passes WCAG AA (5.4:1) */
+  --color-zinc-500: #84848d;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-zinc-50: oklch(14.1% 0.005 285.823);
+  --color-zinc-100: oklch(21% 0.006 285.885);
+  --color-zinc-200: oklch(27.4% 0.006 286.033);
+  --color-zinc-300: oklch(37% 0.013 285.805);
+  --color-zinc-400: oklch(44.2% 0.017 285.786);
+  --color-zinc-600: oklch(70.5% 0.015 286.067);
+  --color-zinc-700: oklch(87.1% 0.006 286.286);
+  --color-zinc-800: oklch(92% 0.004 286.32);
+  --color-zinc-900: oklch(96.7% 0.001 286.375);
+  --color-zinc-950: oklch(98.5% 0 0);
+  --color-blue-50: oklch(28.2% 0.091 267.935);
+  --color-blue-100: oklch(37.9% 0.146 265.522);
+  --color-blue-200: oklch(42.4% 0.199 265.638);
+  --color-blue-300: oklch(48.8% 0.243 264.376);
+  --color-blue-400: oklch(54.6% 0.245 262.881);
+  --color-blue-600: oklch(70.7% 0.165 254.624);
+  --color-blue-700: oklch(80.9% 0.105 251.813);
+  --color-blue-800: oklch(88.2% 0.059 254.128);
+  --color-blue-900: oklch(93.2% 0.032 255.585);
+  --color-blue-950: oklch(97% 0.014 254.604);
+  --color-indigo-50: oklch(25.7% 0.09 281.288);
+  --color-indigo-100: oklch(35.9% 0.144 278.697);
+  --color-indigo-200: oklch(39.8% 0.195 277.366);
+  --color-indigo-300: oklch(45.7% 0.24 277.023);
+  --color-indigo-400: oklch(51.1% 0.262 276.966);
+  --color-indigo-600: oklch(67.3% 0.182 276.935);
+  --color-indigo-700: oklch(78.5% 0.115 274.713);
+  --color-indigo-800: oklch(87% 0.065 274.039);
+  --color-indigo-900: oklch(93% 0.034 272.788);
+  --color-indigo-950: oklch(96.2% 0.018 272.314);
+  --color-emerald-50: oklch(26.2% 0.051 172.552);
+  --color-emerald-100: oklch(37.8% 0.077 168.94);
+  --color-emerald-200: oklch(43.2% 0.095 166.913);
+  --color-emerald-300: oklch(50.8% 0.118 165.612);
+  --color-emerald-400: oklch(59.6% 0.145 163.225);
+  --color-emerald-600: oklch(76.5% 0.177 163.223);
+  --color-emerald-700: oklch(84.5% 0.143 164.978);
+  --color-emerald-800: oklch(90.5% 0.093 164.15);
+  --color-emerald-900: oklch(95% 0.052 163.051);
+  --color-emerald-950: oklch(97.9% 0.021 166.113);
+  --color-green-50: oklch(26.6% 0.065 152.934);
+  --color-green-100: oklch(39.3% 0.095 152.535);
+  --color-green-200: oklch(44.8% 0.119 151.328);
+  --color-green-300: oklch(52.7% 0.154 150.069);
+  --color-green-400: oklch(62.7% 0.194 149.214);
+  --color-green-600: oklch(79.2% 0.209 151.711);
+  --color-green-700: oklch(87.1% 0.15 154.449);
+  --color-green-800: oklch(92.5% 0.084 155.995);
+  --color-green-900: oklch(96.2% 0.044 156.743);
+  --color-green-950: oklch(98.2% 0.018 155.826);
+  --color-yellow-50: oklch(28.6% 0.066 53.813);
+  --color-yellow-100: oklch(42.1% 0.095 57.708);
+  --color-yellow-200: oklch(47.6% 0.114 61.907);
+  --color-yellow-300: oklch(55.4% 0.135 66.442);
+  --color-yellow-400: oklch(68.1% 0.162 75.834);
+  --color-yellow-600: oklch(85.2% 0.199 91.936);
+  --color-yellow-700: oklch(90.5% 0.182 98.111);
+  --color-yellow-800: oklch(94.5% 0.129 101.54);
+  --color-yellow-900: oklch(97.3% 0.071 103.193);
+  --color-yellow-950: oklch(98.7% 0.026 102.212);
+  --color-orange-50: oklch(26.6% 0.079 36.259);
+  --color-orange-100: oklch(40.8% 0.123 38.172);
+  --color-orange-200: oklch(47% 0.157 37.304);
+  --color-orange-300: oklch(55.3% 0.195 38.402);
+  --color-orange-400: oklch(64.6% 0.222 41.116);
+  --color-orange-600: oklch(75% 0.183 55.934);
+  --color-orange-700: oklch(83.7% 0.128 66.29);
+  --color-orange-800: oklch(90.1% 0.076 70.697);
+  --color-orange-900: oklch(95.4% 0.038 75.164);
+  --color-orange-950: oklch(98% 0.016 73.684);
+  --color-red-50: oklch(25.8% 0.092 26.042);
+  --color-red-100: oklch(39.6% 0.141 25.723);
+  --color-red-200: oklch(44.4% 0.177 26.899);
+  --color-red-300: oklch(50.5% 0.213 27.518);
+  --color-red-400: oklch(57.7% 0.245 27.325);
+  --color-red-600: oklch(70.4% 0.191 22.216);
+  --color-red-700: oklch(80.8% 0.114 19.571);
+  --color-red-800: oklch(88.5% 0.062 18.334);
+  --color-red-900: oklch(93.6% 0.032 17.717);
+  --color-red-950: oklch(97.1% 0.013 17.38);
+  /* Stock zinc-500 is the AA-compliant one on a light background (4.6:1) */
+  --color-zinc-500: oklch(55.2% 0.016 285.938);
+  /* hover:bg-white / text-white mean "max contrast" in the dark design */
+  --color-white: #000;
+  --color-black: #fff;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-zinc-950);
+  color: var(--color-zinc-100);
+}
+
+/* ── Accessibility ─────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-blue-400);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  background: var(--color-zinc-100);
+  color: var(--color-zinc-900);
+  font-size: 0.875rem;
+  transform: translateY(-200%);
+}
+.skip-link:focus { transform: none; }
+
+/* ── Background & pointer effects ──────────────────────────────────────────
+   --hx/--hy (hero halo) and --mx/--my (card glow) are set by PageEffects. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-zinc-800) 45%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-zinc-800) 45%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+}
+.hero-halo {
+  background: radial-gradient(600px circle at var(--hx, 70%) var(--hy, 30%),
+    color-mix(in oklab, var(--color-blue-500) 14%, transparent), transparent 60%);
+  transition: background 0.2s;
+}
+.glow-card {
+  position: relative;
+  isolation: isolate;
+}
+.glow-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklab, var(--color-blue-500) 12%, transparent), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.glow-card:hover::before { opacity: 1; }
+
+/* ── Scroll reveal ─────────────────────────────────────────────────────────
+   Only hidden when scripts run, so content stays visible without JS. */
+@media (scripting: enabled) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    transition-delay: calc(var(--d, 0) * 90ms);
+  }
+  [data-reveal][data-visible] { opacity: 1; transform: none; }
+  .timeline-line[data-reveal] {
+    opacity: 1;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .timeline-line[data-reveal][data-visible] { transform: scaleY(1); }
+}
+
+/* ── Hero terminal ─────────────────────────────────────────────────────────
+   Lines reveal at --at; commands are typed with a stepped clip over --dur. */
+.term-line {
+  opacity: 0;
+  animation: term-show 0s linear var(--at) forwards;
+}
+.term-type {
+  display: inline-block;
+  vertical-align: bottom;
+  clip-path: inset(0 100% 0 0);
+  animation: term-type var(--dur) steps(var(--chars)) var(--at) forwards;
+}
+.term-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  vertical-align: middle;
+  background: var(--color-blue-400);
+  animation: term-blink 1s steps(1) infinite;
+}
+@keyframes term-show { to { opacity: 1; } }
+@keyframes term-type { to { clip-path: inset(0 0 0 0); } }
+@keyframes term-blink { 50% { opacity: 0; } }
+
+/* ── Architecture diagram ──────────────────────────────────────────────────
+   One packet per link, staggered by --i so it seems to travel end to end.
+   Vertical on mobile, horizontal from md. */
+.arch-link {
+  position: relative;
+  flex: none;
+  align-self: center;
+  width: 1px;
+  height: 28px;
+  background: var(--color-zinc-800);
+}
+.arch-packet {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-blue-400);
+  box-shadow: 0 0 10px var(--color-blue-500);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: arch-y 4s linear infinite;
+  animation-delay: calc(var(--i) * 0.8s);
+}
+@keyframes arch-y {
+  0% { top: 0; opacity: 1; }
+  20% { top: 100%; opacity: 1; }
+  20.01%, 100% { top: 100%; opacity: 0; }
+}
+@keyframes arch-x {
+  0% { left: 0; opacity: 1; }
+  20% { left: 100%; opacity: 1; }
+  20.01%, 100% { left: 100%; opacity: 0; }
+}
+@media (min-width: 48rem) {
+  .arch-link { width: 40px; height: 1px; }
+  .arch-packet { top: 50%; left: 0; animation-name: arch-x; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal], .timeline-line[data-reveal] { opacity: 1; transform: none; transition: none; }
+  .hero-halo { transition: none; }
+  .term-line, .term-type { animation: none; opacity: 1; clip-path: none; }
+  .term-cursor { animation: none; }
+  .arch-packet { display: none; }
+}
+
+/* ── Pipeline DAG (Airflow state colours) ───────────────────────────────── */
+.dag {
+  --dag-queued: var(--color-zinc-700);
+  --dag-running: var(--color-blue-400);
+  --dag-success: var(--color-emerald-500);
+  --dag-edge: var(--color-zinc-700);
+}
+
+/* ── Tech marquee ──────────────────────────────────────────────────────── */
+.marquee {
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+.marquee-track {
+  animation: marquee 45s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* ── Journey map ───────────────────────────────────────────────────────── */
+.journey-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: journey-pulse 2.4s ease-out infinite;
+}
+@keyframes journey-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@media (scripting: enabled) {
+  .journey-route { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  [data-visible] .journey-route { animation: journey-draw 1.6s 0.3s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+}
+@media (scripting: enabled) {
+  /* The arrowhead lands once the route has finished drawing */
+  .journey-arrow { opacity: 0; }
+  [data-visible] .journey-arrow { animation: journey-arrow 0.35s 1.8s ease-out forwards; }
+}
+@keyframes journey-draw { to { stroke-dashoffset: 0; } }
+@keyframes journey-arrow { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .journey-pulse { animation: none; opacity: 0; }
+  .journey-route, [data-visible] .journey-route { animation: none; stroke-dashoffset: 0; }
+  .journey-arrow, [data-visible] .journey-arrow { animation: none; opacity: 1; }
+}
+
+/* ── Gantt axis bars: grow when the entry is revealed ───────────────────── */
+@media (scripting: enabled) {
+  .gantt-bar { transform: scaleY(0); transform-origin: bottom; transition: transform 1s 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
+  [data-visible] .gantt-bar { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gantt-bar { transform: none; transition: none; }
+}
+
+/* ── Accordions (<details>) open smoothly where supported; tab panels fade in ── */
+:root { interpolate-size: allow-keywords; }
+details::details-content {
+  height: 0;
+  overflow: clip;
+  transition: height 0.35s ease, content-visibility 0.35s allow-discrete;
+}
+details[open]::details-content { height: auto; }
+.tab-panel { animation: tab-in 0.3s ease; }
+@keyframes tab-in { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) {
+  details::details-content { transition: none; }
+  .tab-panel { animation: none; }
 }
