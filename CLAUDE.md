@@ -29,7 +29,7 @@ docker-backend/           — API de gestion des conteneurs démo
 
 docker-compose.yml        — orchestre frontend + docker-backend
 
-projets/<id>/             — une démo = docker-compose.yml + portfolio.json
+projets/<id>/             — une démo = docker-compose.yml (ou `compose_file`) + portfolio.json
 ```
 
 Rien n'est versionné dans `projets/` (hormis `.gitkeep`) : on y importe chaque démo à la main (`git clone <url> projets/<id>`, id en minuscules/chiffres/tirets), en dev comme sur le VPS. Le backend relit `projets/` à chaque requête : un clone contenant `portfolio.json` + `docker-compose.yml` (conformes aux règles ci-dessous) apparaît sans redémarrage.
@@ -87,14 +87,17 @@ DOCKER_BACKEND_SECRET=change-me
 ## Container Security Rules
 
 Chaque démo (`projets/<id>/docker-compose.yml`) doit :
-- déclarer `mem_limit` (256m par défaut ; exception documentée : Airflow à 1536m, il ne démarre pas en dessous) et `cpus: "0.5"`
+- déclarer `mem_limit` (256m par défaut ; exceptions documentées : Airflow à 1536m, il ne démarre pas en dessous ; EuroMobilityDataHub à 512m, pic mesuré ~315 Mo) et `cpus: "0.5"`
 - utiliser une image à version figée (jamais `latest`)
+
+`portfolio.json` peut pointer un autre fichier via `compose_file` (chemin relatif, confiné au dossier du projet) quand le `docker-compose.yml` racine du dépôt est autre chose que la démo — ex. EuroMobilityDataHub (branche `portfolio`) : `demo/docker-compose.portfolio.yml`, image tirée de ghcr car son seed n'est pas versionné.
 
 Dans `portfolio.json`, chaque service servi sous `/demo/<port>/` doit le savoir via `env_overrides` (`{{URL}}` = URL publique avec `/` final, `{{BASE}}` = sans) — ex. `GF_SERVER_ROOT_URL={{URL}}`, `AIRFLOW__WEBSERVER__BASE_URL={{BASE}}`. `health_path` (ex. `{{PATH}}/health`) est l'URL HTTP sondée pour déclarer la démo prête : un simple test TCP ne suffit pas, le proxy Docker accepte la connexion avant que l'appli n'écoute.
 
 Le backend ajoute automatiquement via un fichier override :
 - ports publiés sur `DEMO_BIND_IP` uniquement
 - réseau sans NAT sortant (`enable_ip_masquerade: false`) : pas d'accès Internet, mais le port publié reste joignable (`NetworkMode: none` empêcherait toute publication de port)
+  - exception : `"allow_egress": true` dans `portfolio.json` garde le NAT sortant, réservé aux démos qui consomment des flux publics en direct (EuroMobilityDataHub : flux GTFS-RT de 8 pays). Image figée, aucun code fourni par le visiteur.
   - ⚠️ Inefficace sous Docker Desktop (WSL/Mac), dont la VM fait son propre NAT : l'isolation ne vaut que sur un Docker Linux natif (VPS). Vérifier après déploiement :
     `docker exec <conteneur-demo> wget -q -T 5 -O /dev/null https://example.com && echo "FUITE" || echo "bloqué"`
 - `pids_limit: 256` et `no-new-privileges`
