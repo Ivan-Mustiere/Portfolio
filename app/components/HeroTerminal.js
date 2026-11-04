@@ -56,7 +56,7 @@ export default function HeroTerminal({ lang = "fr" }) {
           <span className="text-blue-400">$</span>
           <span className="term-cursor" aria-hidden="true" />
           <Link
-            href={projectsHref(lang, "grafana")}
+            href={projectsHref(lang)}
             className="ml-auto inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/40 text-blue-300 font-sans text-xs font-medium hover:bg-blue-500/20 hover:text-blue-200 transition-colors"
           >
             {t.cta}

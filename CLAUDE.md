@@ -32,6 +32,8 @@ docker-compose.yml        — orchestre frontend + docker-backend
 projets/<id>/             — une démo = docker-compose.yml + portfolio.json
 ```
 
+Rien n'est versionné dans `projets/` (hormis `.gitkeep`) : on y importe chaque démo à la main (`git clone <url> projets/<id>`, id en minuscules/chiffres/tirets), en dev comme sur le VPS. Le backend relit `projets/` à chaque requête : un clone contenant `portfolio.json` + `docker-compose.yml` (conformes aux règles ci-dessous) apparaît sans redémarrage.
+
 Next.js API routes agissent en proxy sécurisé : le navigateur ne parle jamais directement au backend, donc `DOCKER_BACKEND_URL` et `DOCKER_BACKEND_SECRET` restent côté serveur.
 
 Le backend monte `/var/run/docker.sock` pour piloter Docker sur le VPS hôte : c'est l'équivalent d'un accès root. Il ne doit **jamais** publier de port (seul le frontend le joint via le réseau compose) et refuse de démarrer sans `DOCKER_BACKEND_SECRET`.

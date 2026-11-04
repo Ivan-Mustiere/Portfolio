@@ -2,8 +2,6 @@
 const PATHS = [
   { path: "", priority: 1 },
   { path: "/projets", priority: 0.8 },
-  { path: "/projets/grafana", priority: 0.6 },
-  { path: "/projets/airflow", priority: 0.6 },
   { path: "/infra", priority: 0.7 },
 ];
 

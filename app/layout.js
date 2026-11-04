@@ -29,7 +29,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Ivan Mustière — Data Engineer, bagage infra & DevOps",
-    description: "Portfolio avec démos Docker interactives — Grafana, Airflow et plus.",
+    description: "Portfolio avec démos Docker interactives lancées dans le navigateur.",
   },
   alternates: { canonical: "/", languages: { fr: "/", en: "/en" } },
   robots: { index: true, follow: true },

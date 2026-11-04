@@ -3,7 +3,6 @@ import Link from "next/link";
 import Nav from "@/app/components/Nav";
 import ProjectsGrid from "@/app/components/ProjectsGrid";
 import HeroTerminal from "@/app/components/HeroTerminal";
-import Architecture from "@/app/components/Architecture";
 import PageEffects from "@/app/components/PageEffects";
 import TechMarquee from "@/app/components/TechMarquee";
 import TechLogo, { techTitle } from "@/app/components/TechLogo";
@@ -17,7 +16,7 @@ import GitHubActivity from "@/app/components/GitHubActivity";
 import { monthsBetween } from "@/lib/dates";
 import * as dataFr from "@/lib/data";
 import * as dataEn from "@/lib/data.en";
-import { getDict, infraHref, projectsHref } from "@/lib/i18n";
+import { getDict, projectsHref } from "@/lib/i18n";
 
 export default function HomePage({ lang = "fr" }) {
   const t = getDict(lang);
@@ -225,20 +224,6 @@ export default function HomePage({ lang = "fr" }) {
           <div data-reveal>
             <GitHubActivity lang={lang} />
           </div>
-        </section>
-
-        {/* Sous le capot */}
-        <section id="infra" className="py-14 md:py-20 border-t border-zinc-800">
-          <h2 className="text-xl md:text-2xl font-semibold mb-2" data-reveal>{t.infra.title}</h2>
-          <p className="text-sm text-zinc-400 max-w-xl leading-relaxed mb-8" data-reveal>
-            {t.infra.teaser}
-          </p>
-          <div data-reveal>
-            <Architecture lang={lang} />
-          </div>
-          <Link href={infraHref(lang)} className="inline-block mt-8 text-sm text-blue-400 hover:text-blue-300 underline underline-offset-2" data-reveal>
-            {t.infra.more}
-          </Link>
         </section>
 
         {/* Contact */}

@@ -44,3 +44,8 @@ node_modules/
 .env.local
 docker-backend/.env
 docker-backend/node_modules/
+
+# projets/ : chaque démo est importée à la main (git clone ... projets/<id>),
+# en dev comme sur le VPS ; rien n'y est versionné hormis le dossier lui-même
+/projets/*
+!/projets/.gitkeep
