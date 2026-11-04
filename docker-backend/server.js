@@ -123,7 +123,18 @@ async function scanProjects() {
   return projects;
 }
 
-function buildOverrideYaml(services, portMap, urlMap, bindIp = DEMO_BIND_IP) {
+// portfolio.json may point to a compose file other than ./docker-compose.yml (e.g. a repo whose
+// root compose is the full stack). Must stay inside the project dir; null if invalid.
+function resolveComposePath(projectDir, composeFile = 'docker-compose.yml') {
+  if (typeof composeFile !== 'string' || !/\.ya?ml$/.test(composeFile) || path.isAbsolute(composeFile)) return null;
+  const resolved = path.resolve(projectDir, composeFile);
+  if (!resolved.startsWith(path.resolve(projectDir) + path.sep)) return null;
+  return resolved;
+}
+
+// allowEgress (portfolio.json `allow_egress`): keeps outbound NAT, for demos that consume live
+// public feeds. Inbound stays limited to the port published on bindIp.
+function buildOverrideYaml(services, portMap, urlMap, bindIp = DEMO_BIND_IP, { allowEgress = false } = {}) {
   let yaml = 'services:\n';
   for (const svc of services) {
     const ext = portMap[svc.service];
@@ -141,14 +152,14 @@ function buildOverrideYaml(services, portMap, urlMap, bindIp = DEMO_BIND_IP) {
       }
     }
   }
+  if (allowEgress) return yaml;
   // No NAT on the demo network: published ports still work inbound, but containers can't reach the internet
   yaml += 'networks:\n  default:\n    driver_opts:\n      com.docker.network.bridge.enable_ip_masquerade: "false"\n';
   return yaml;
 }
 
 function composeArgs(session, ...rest) {
-  const composePath = path.join(session.projectDir, 'docker-compose.yml');
-  return ['compose', '-p', `${DEMO_PROJECT_PREFIX}${session.sessionId}`, '-f', composePath, '-f', session.overrideFile, ...rest];
+  return ['compose', '-p', `${DEMO_PROJECT_PREFIX}${session.sessionId}`, '-f', session.composePath, '-f', session.overrideFile, ...rest];
 }
 
 const TIMEOUT_ERROR = 'Timeout : le service n\'a pas démarré dans les délais';
@@ -438,6 +449,9 @@ app.post('/launch/:projectId', async (req, res) => {
     return res.status(404).json({ error: 'Projet introuvable' });
   }
 
+  const composePath = resolveComposePath(projectDir, config.compose_file);
+  if (!composePath) return res.status(500).json({ error: 'Configuration de la démo invalide' });
+
   const sessionId = crypto.randomBytes(8).toString('hex');
 
   const portMap = {};
@@ -456,7 +470,10 @@ app.post('/launch/:projectId', async (req, res) => {
   }
 
   const overrideFile = path.join(os.tmpdir(), `${OVERRIDE_PREFIX}${sessionId}.yml`);
-  await fs.writeFile(overrideFile, buildOverrideYaml(config.services, portMap, urlMap));
+  await fs.writeFile(
+    overrideFile,
+    buildOverrideYaml(config.services, portMap, urlMap, DEMO_BIND_IP, { allowEgress: config.allow_egress === true })
+  );
 
   const services = config.services.map((svc) => ({
     name: svc.name,
@@ -468,6 +485,7 @@ app.post('/launch/:projectId', async (req, res) => {
     sessionId,
     projectId,
     projectDir,
+    composePath,
     overrideFile,
     portMap,
     // health_path (portfolio.json) may use {{PATH}}, the /demo/<port> prefix the app is served under
@@ -544,4 +562,4 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { buildOverrideYaml, isValidProjectId, isRateLimited, launchHistory, publicError, pushLog };
+module.exports = { buildOverrideYaml, resolveComposePath, isValidProjectId, isRateLimited, launchHistory, publicError, pushLog };

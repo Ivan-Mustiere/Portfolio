@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { buildOverrideYaml, isValidProjectId, isRateLimited, launchHistory } = require('../server.js');
+const { buildOverrideYaml, resolveComposePath, isValidProjectId, isRateLimited, launchHistory } = require('../server.js');
 
 test('isValidProjectId rejects path traversal and odd characters', () => {
   assert.ok(isValidProjectId('grafana'));
@@ -22,6 +22,24 @@ test('buildOverrideYaml binds ports to the given IP and disables outbound NAT', 
   assert.match(yaml, /enable_ip_masquerade: "false"/);
   assert.match(yaml, /pids_limit: 256/);
   assert.doesNotMatch(yaml, /0\.0\.0\.0/);
+});
+
+test('buildOverrideYaml keeps outbound NAT only when allowEgress is set', () => {
+  const args = [[{ service: 'demo', internal_port: 8000 }], { demo: 21001 }, { demo: 'https://example.com/demo/21001/' }, '172.17.0.1'];
+  assert.match(buildOverrideYaml(...args), /enable_ip_masquerade: "false"/);
+  const yaml = buildOverrideYaml(...args, { allowEgress: true });
+  assert.doesNotMatch(yaml, /enable_ip_masquerade/);
+  assert.match(yaml, /- "172\.17\.0\.1:21001:8000"/);
+  assert.match(yaml, /no-new-privileges:true/);
+});
+
+test('resolveComposePath stays inside the project dir', () => {
+  const dir = '/srv/projets/demo';
+  assert.strictEqual(resolveComposePath(dir), '/srv/projets/demo/docker-compose.yml');
+  assert.strictEqual(resolveComposePath(dir, 'demo/compose.portfolio.yml'), '/srv/projets/demo/demo/compose.portfolio.yml');
+  for (const bad of ['../other/docker-compose.yml', '/etc/compose.yml', 'demo/../../x.yml', 'compose.json', 42]) {
+    assert.strictEqual(resolveComposePath(dir, bad), null, `should reject ${bad}`);
+  }
 });
 
 test('isRateLimited allows a burst then blocks, per IP', () => {

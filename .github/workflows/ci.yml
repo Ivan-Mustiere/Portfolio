@@ -40,4 +40,4 @@ jobs:
       - name: Validate compose files
         run: |
           DOCKER_BACKEND_SECRET=ci PROJECTS_HOST_DIR="$GITHUB_WORKSPACE/projets" docker compose config -q
-          for f in projets/*/docker-compose.yml; do docker compose -f "$f" config -q; done
+          for f in projets/*/docker-compose.yml; do [ -e "$f" ] || continue; docker compose -f "$f" config -q; done
