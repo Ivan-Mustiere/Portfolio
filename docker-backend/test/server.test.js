@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { buildOverrideYaml, resolveComposePath, isValidProjectId, isRateLimited, launchHistory } = require('../server.js');
+const { buildOverrideYaml, resolveComposePath, resolvePreviewPath, readablePreview, rateLimitRetryAfter, isValidProjectId, isRateLimited, launchHistory } = require('../server.js');
 
 test('isValidProjectId rejects path traversal and odd characters', () => {
   assert.ok(isValidProjectId('grafana'));
@@ -79,4 +79,42 @@ test('pushLog strips ANSI codes, host paths and keeps a bounded buffer', () => {
   for (let i = 0; i < 500; i++) pushLog(session, `line ${i}`);
   assert.strictEqual(session.logs.length, 400);
   assert.strictEqual(session.logs.at(-1).n, session.logSeq);
+});
+
+test('resolvePreviewPath accepts media files inside the project dir only', () => {
+  const dir = '/srv/projets/demo';
+  assert.deepStrictEqual(resolvePreviewPath(dir, 'demo/preview.mp4'), { file: '/srv/projets/demo/demo/preview.mp4', contentType: 'video/mp4', kind: 'video' });
+  assert.strictEqual(resolvePreviewPath(dir, 'shot.PNG').kind, 'image');
+  for (const bad of ['../other/preview.mp4', '/etc/preview.png', 'portfolio.json', 'preview.svg', '.env', undefined, 42]) {
+    assert.strictEqual(resolvePreviewPath(dir, bad), null, `should reject ${bad}`);
+  }
+});
+
+test('readablePreview rejects a symlink pointing outside the project dir', async () => {
+  const fsp = require('fs').promises;
+  const os = require('os');
+  const path = require('path');
+  const root = await fsp.mkdtemp(path.join(os.tmpdir(), 'preview-test-'));
+  const dir = path.join(root, 'demo');
+  await fsp.mkdir(dir);
+  await fsp.writeFile(path.join(dir, 'ok.png'), 'x');
+  await fsp.writeFile(path.join(root, 'secret.png'), 'x');
+  await fsp.symlink(path.join(root, 'secret.png'), path.join(dir, 'leak.png'));
+  try {
+    assert.strictEqual((await readablePreview(dir, 'ok.png')).kind, 'image');
+    assert.strictEqual(await readablePreview(dir, 'leak.png'), null);
+    assert.strictEqual(await readablePreview(dir, 'missing.png'), null);
+  } finally {
+    await fsp.rm(root, { recursive: true, force: true });
+  }
+});
+
+test('rateLimitRetryAfter counts down from the oldest launch in the window', () => {
+  const ip = 'retry-test';
+  const now = 1_000_000_000;
+  launchHistory.delete(ip);
+  assert.strictEqual(rateLimitRetryAfter(ip, now), 0);
+  for (let i = 0; i < 5; i++) isRateLimited(ip, now + i * 1000);
+  assert.strictEqual(rateLimitRetryAfter(ip, now + 60_000), 9 * 60);
+  launchHistory.delete(ip);
 });

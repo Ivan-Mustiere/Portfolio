@@ -102,6 +102,50 @@ function isRateLimited(clientIp, now = Date.now()) {
   return false;
 }
 
+// Seconds until this IP can launch again (0 if not limited)
+function rateLimitRetryAfter(clientIp, now = Date.now()) {
+  const recent = (launchHistory.get(clientIp) || []).filter((t) => now - t < LAUNCH_RATE_WINDOW_MS);
+  if (recent.length < LAUNCH_RATE_LIMIT) return 0;
+  return Math.max(1, Math.ceil((Math.min(...recent) + LAUNCH_RATE_WINDOW_MS - now) / 1000));
+}
+
+// Seconds until a demo slot frees up: the earliest session expiry
+function busyRetryAfter(now = Date.now()) {
+  const expiries = [...sessions.values()].map((s) => s.expiresAt || s.startedAt + SESSION_TTL_MS);
+  if (!expiries.length) return 60;
+  return Math.max(1, Math.ceil((Math.min(...expiries) - now) / 1000));
+}
+
+// portfolio.json `preview`: a video or image shown when the demo can't start.
+// Same confinement as compose_file: relative, inside the project dir, whitelisted extension.
+const PREVIEW_TYPES = {
+  '.mp4': 'video/mp4', '.webm': 'video/webm',
+  '.gif': 'image/gif', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
+};
+
+function resolvePreviewPath(projectDir, previewFile) {
+  if (typeof previewFile !== 'string' || path.isAbsolute(previewFile)) return null;
+  const ext = path.extname(previewFile).toLowerCase();
+  if (!PREVIEW_TYPES[ext]) return null;
+  const resolved = path.resolve(projectDir, previewFile);
+  if (!resolved.startsWith(path.resolve(projectDir) + path.sep)) return null;
+  return { file: resolved, contentType: PREVIEW_TYPES[ext], kind: PREVIEW_TYPES[ext].split('/')[0] };
+}
+
+// Resolves symlinks too: a cloned repo could link its preview outside the project dir
+async function readablePreview(projectDir, previewFile) {
+  const preview = resolvePreviewPath(projectDir, previewFile);
+  if (!preview) return null;
+  try {
+    const [real, realDir] = await Promise.all([fs.realpath(preview.file), fs.realpath(projectDir)]);
+    if (!real.startsWith(realDir + path.sep)) return null;
+    if (!(await fs.stat(real)).isFile()) return null;
+    return { ...preview, file: real };
+  } catch {
+    return null;
+  }
+}
+
 async function scanProjects() {
   const projects = [];
   try {
@@ -112,7 +156,8 @@ async function scanProjects() {
       try {
         const data = await fs.readFile(portfolioPath, 'utf8');
         const config = JSON.parse(data);
-        projects.push({ id: entry.name, ...config });
+        const preview = await readablePreview(path.join(PROJECTS_DIR, entry.name), config.preview);
+        projects.push({ id: entry.name, ...config, preview_type: preview ? preview.kind : null });
       } catch {
         // No valid portfolio.json
       }
@@ -255,6 +300,7 @@ async function startContainers(session) {
     session.status = 'ready';
     pushLog(session, '✔ Prêt : ouverture de l’interface');
     session.ttlTimer = setTimeout(() => stopSession(session), SESSION_TTL_MS);
+    session.expiresAt = Date.now() + SESSION_TTL_MS;
     // The page only shows logs while starting; keep a few seconds for the last poll
     setTimeout(() => stopFollowingLogs(session), 10000);
   } catch (err) {
@@ -425,6 +471,20 @@ app.get('/projects', async (req, res) => {
   res.json(projects);
 });
 
+app.get('/preview/:projectId', async (req, res) => {
+  const projectDir = path.join(PROJECTS_DIR, req.params.projectId);
+  let config;
+  try {
+    config = JSON.parse(await fs.readFile(path.join(projectDir, 'portfolio.json'), 'utf8'));
+  } catch {
+    return res.status(404).json({ error: 'Projet introuvable' });
+  }
+  const preview = await readablePreview(projectDir, config.preview);
+  if (!preview) return res.status(404).json({ error: 'Aucun aperçu' });
+  // sendFile handles Range requests, needed to seek/play mp4 in Safari
+  res.sendFile(preview.file, { headers: { 'Content-Type': preview.contentType }, maxAge: '1h', dotfiles: 'allow' });
+});
+
 app.post('/launch/:projectId', async (req, res) => {
   const { projectId } = req.params;
   const projectDir = path.join(PROJECTS_DIR, projectId);
@@ -435,10 +495,18 @@ app.post('/launch/:projectId', async (req, res) => {
 
   const clientIp = req.headers['x-client-ip'] || req.ip;
   if (isRateLimited(clientIp)) {
-    return res.status(429).json({ error: 'Trop de lancements, réessaie dans quelques minutes' });
+    return res.status(429).json({
+      error: 'Trop de lancements, réessaie dans quelques minutes',
+      code: 'rate_limited',
+      retryAfter: rateLimitRetryAfter(clientIp),
+    });
   }
   if (sessions.size >= MAX_SESSIONS) {
-    return res.status(503).json({ error: 'Trop de démos en cours, réessaie dans quelques minutes' });
+    return res.status(503).json({
+      error: 'Trop de démos en cours, réessaie dans quelques minutes',
+      code: 'busy',
+      retryAfter: busyRetryAfter(),
+    });
   }
 
   let config;
@@ -536,6 +604,7 @@ app.post('/extend/:sessionId', (req, res) => {
 
   clearTimeout(session.ttlTimer);
   session.ttlTimer = setTimeout(() => stopSession(session), SESSION_TTL_MS);
+  session.expiresAt = Date.now() + SESSION_TTL_MS;
   session.extensions += 1;
 
   res.json({ ok: true, extensions: session.extensions, remaining: MAX_EXTENSIONS - session.extensions });
@@ -562,4 +631,4 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { buildOverrideYaml, resolveComposePath, isValidProjectId, isRateLimited, launchHistory, publicError, pushLog };
+module.exports = { buildOverrideYaml, resolveComposePath, resolvePreviewPath, readablePreview, rateLimitRetryAfter, isValidProjectId, isRateLimited, launchHistory, publicError, pushLog };

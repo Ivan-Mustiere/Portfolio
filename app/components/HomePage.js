@@ -6,7 +6,6 @@ import HeroTerminal from "@/app/components/HeroTerminal";
 import PageEffects from "@/app/components/PageEffects";
 import TechMarquee from "@/app/components/TechMarquee";
 import TechLogo, { techTitle } from "@/app/components/TechLogo";
-import PipelineDag from "@/app/components/PipelineDag";
 import JourneyMap from "@/app/components/JourneyMap";
 import Timeline from "@/app/components/Timeline";
 import Tabs from "@/app/components/Tabs";
@@ -124,10 +123,6 @@ export default function HomePage({ lang = "fr" }) {
                 </div>
               </div>
             ))}
-          </div>
-          <p className="text-sm text-zinc-400 mt-10 mb-4" data-reveal>{t.dag.intro}</p>
-          <div data-reveal>
-            <PipelineDag lang={lang} />
           </div>
         </section>
 

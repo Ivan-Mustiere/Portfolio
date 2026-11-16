@@ -86,14 +86,57 @@ function ElapsedTimer({ startedAt, estimatedSeconds }) {
   );
 }
 
+function formatWait(seconds) {
+  if (seconds < 60) return `${seconds} s`;
+  return `${Math.ceil(seconds / 60)} min`;
+}
+
+// Launch refused (quota / all slots taken): localized message with a live countdown
+function ErrorNotice({ error, errorCode, retryAt, t, className = '' }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!retryAt) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [retryAt]);
+
+  let message = error;
+  if (retryAt && (errorCode === 'rate_limited' || errorCode === 'busy')) {
+    const left = Math.ceil((retryAt - now) / 1000);
+    message = left <= 0 ? t.retryNow : t[errorCode === 'busy' ? 'busy' : 'rateLimited'](formatWait(left));
+  }
+  return <p className={className}>{message}</p>;
+}
+
+// Recorded preview (portfolio.json `preview`), shown when the live demo can't start
+function DemoPreview({ slug, type, name, t, className = '' }) {
+  if (!type) return null;
+  const src = `/api/demo/preview/${encodeURIComponent(slug)}`;
+  return (
+    <figure className={`rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900/40 ${className}`}>
+      {type === 'video' ? (
+        <video src={src} autoPlay muted loop playsInline className="w-full block" aria-label={`${t.previewTitle} — ${name}`} />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={`${t.previewTitle} — ${name}`} className="w-full block" />
+      )}
+      <figcaption className="px-3 py-2 text-xs text-zinc-500">
+        <span className="text-zinc-400">{t.previewTitle}</span> · {t.previewNote}
+      </figcaption>
+    </figure>
+  );
+}
+
 // Demo page for one project (/projets/<id> and /en/projets/<id>): presentation + live container
 export default function ProjectDemo({ slug, lang = 'fr' }) {
   const t = getDict(lang).demo;
-  const [project, setProject] = useState(null);
+  // undefined = loading, null = unknown project or backend unreachable
+  const [project, setProject] = useState(undefined);
   const [tab, setTab] = useState('projet');
   const [state, setState] = useState({
     status: 'idle', sessionId: null, services: [],
-    error: null, startedAt: null, extensions: 0,
+    error: null, errorCode: null, retryAt: null, startedAt: null, extensions: 0,
   });
 
   const poll = useCallback(async (sessionId) => {
@@ -121,7 +164,7 @@ export default function ProjectDemo({ slug, lang = 'fr' }) {
   }, [state.status, state.sessionId, poll]);
 
   const launch = async () => {
-    setState((s) => ({ ...s, status: 'starting', sessionId: null, services: [], error: null, startedAt: Date.now(), extensions: 0 }));
+    setState((s) => ({ ...s, status: 'starting', sessionId: null, services: [], error: null, errorCode: null, retryAt: null, startedAt: Date.now(), extensions: 0 }));
     try {
       const res = await fetch('/api/demo/launch', {
         method: 'POST',
@@ -129,7 +172,13 @@ export default function ProjectDemo({ slug, lang = 'fr' }) {
         body: JSON.stringify({ projectId: slug }),
       });
       const data = await res.json();
-      if (!res.ok) { setState((s) => ({ ...s, status: 'error', error: data.error || t.startError })); return; }
+      if (!res.ok) {
+        setState((s) => ({
+          ...s, status: 'error', error: data.error || t.startError, errorCode: data.code || null,
+          retryAt: data.retryAfter ? Date.now() + data.retryAfter * 1000 : null,
+        }));
+        return;
+      }
       setState((s) => ({ ...s, status: data.status || s.status, sessionId: data.sessionId, services: data.services || [], startedAt: data.startedAt || s.startedAt, extensions: data.extensions ?? 0 }));
     } catch {
       setState((s) => ({ ...s, status: 'error', error: t.backendDown }));
@@ -160,16 +209,25 @@ export default function ProjectDemo({ slug, lang = 'fr' }) {
         setProject(found ? localizeProject(found, lang) : null);
         if (found) launch();
       })
-      .catch(() => {});
+      .catch(() => setProject(null));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
-  const { status, services, error, startedAt, extensions } = state;
+  const { status, services, error, errorCode, retryAt, startedAt, extensions } = state;
 
-  if (!project) {
+  if (project === undefined) {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
         <p className="text-zinc-500 text-sm">{t.loading}</p>
+      </div>
+    );
+  }
+
+  if (project === null) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="text-zinc-400 text-sm">{t.unavailable}</p>
+        <Link href={projectsHref(lang)} className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">{t.back}</Link>
       </div>
     );
   }
@@ -366,7 +424,8 @@ export default function ProjectDemo({ slug, lang = 'fr' }) {
 
               {status === 'error' && (
                 <div className="mb-4">
-                  <p className="text-red-400 text-sm mb-3">{error}</p>
+                  <ErrorNotice error={error} errorCode={errorCode} retryAt={retryAt} t={t} className="text-red-400 text-sm mb-3" />
+                  <DemoPreview slug={slug} type={project.preview_type} name={project.name} t={t} className="mb-3" />
                   <button onClick={launch} className="px-4 py-2 bg-zinc-100 text-zinc-900 rounded-full text-sm font-medium hover:bg-white transition-colors">
                     {t.retry}
                   </button>
@@ -441,8 +500,9 @@ export default function ProjectDemo({ slug, lang = 'fr' }) {
             )}
 
             {status === 'error' && (
-              <div className="flex flex-col items-center justify-center flex-1 gap-4 px-6">
-                <p className="text-red-400 text-sm bg-red-950/30 border border-red-900 rounded-lg px-4 py-3">{error}</p>
+              <div className="flex flex-col items-center justify-center flex-1 gap-4 px-6 py-8">
+                <ErrorNotice error={error} errorCode={errorCode} retryAt={retryAt} t={t} className="text-red-400 text-sm bg-red-950/30 border border-red-900 rounded-lg px-4 py-3" />
+                <DemoPreview slug={slug} type={project.preview_type} name={project.name} t={t} className="w-full max-w-4xl" />
                 <button onClick={launch} className="px-5 py-2.5 bg-zinc-100 text-zinc-900 rounded-full text-sm font-medium hover:bg-white transition-colors">
                   {t.retry}
                 </button>

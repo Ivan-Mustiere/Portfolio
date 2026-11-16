@@ -94,6 +94,8 @@ Chaque démo (`projets/<id>/docker-compose.yml`) doit :
 
 Dans `portfolio.json`, chaque service servi sous `/demo/<port>/` doit le savoir via `env_overrides` (`{{URL}}` = URL publique avec `/` final, `{{BASE}}` = sans) — ex. `GF_SERVER_ROOT_URL={{URL}}`, `AIRFLOW__WEBSERVER__BASE_URL={{BASE}}`. `health_path` (ex. `{{PATH}}/health`) est l'URL HTTP sondée pour déclarer la démo prête : un simple test TCP ne suffit pas, le proxy Docker accepte la connexion avant que l'appli n'écoute.
 
+`preview` (optionnel) : aperçu enregistré affiché quand la démo ne peut pas démarrer (quota, places prises, erreur). Chemin relatif confiné au dossier du projet (symlinks résolus), extensions `.mp4 .webm .gif .png .jpg .jpeg .webp` ; servi par `GET /preview/:projectId` (Range géré) via `/api/demo/preview/<id>`. `/projects` expose `preview_type` (`video` | `image` | `null`).
+
 Le backend ajoute automatiquement via un fichier override :
 - ports publiés sur `DEMO_BIND_IP` uniquement
 - réseau sans NAT sortant (`enable_ip_masquerade: false`) : pas d'accès Internet, mais le port publié reste joignable (`NetworkMode: none` empêcherait toute publication de port)

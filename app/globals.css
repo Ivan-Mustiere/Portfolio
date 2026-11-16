@@ -252,14 +252,6 @@ body {
   .arch-packet { display: none; }
 }
 
-/* ── Pipeline DAG (Airflow state colours) ───────────────────────────────── */
-.dag {
-  --dag-queued: var(--color-zinc-700);
-  --dag-running: var(--color-blue-400);
-  --dag-success: var(--color-emerald-500);
-  --dag-edge: var(--color-zinc-700);
-}
-
 /* ── Tech marquee ──────────────────────────────────────────────────────── */
 .marquee {
   mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
